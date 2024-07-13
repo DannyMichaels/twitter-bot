@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { twitterClient } = require('./twitterClient.js');
-const axios = require('axios');
+const { uploadTwitterMedia } = require('./services');
 
 const tweet = async () => {
   try {
@@ -14,39 +14,10 @@ const tweet = async () => {
   }
 };
 
-const getImageBuffer = async (url) => {
-  try {
-    const response = await axios({
-      url,
-      responseType: 'arraybuffer',
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error downloading image:', error);
-    throw error;
-  }
-};
-
-const uploadMedia = async (imageBuffer) => {
-  try {
-    const mediaId = await twitterClient.v1.uploadMedia(imageBuffer, {
-      mimeType: 'image/jpeg',
-      mediaCategory: 'tweet_image',
-    });
-    return mediaId;
-  } catch (error) {
-    console.error('Error uploading media:', error);
-    throw error;
-  }
-};
-
 const tweetImage = async (imageUrl) => {
   try {
     // Get the image buffer from URL
-    const imageBuffer = await getImageBuffer(imageUrl);
-
-    // Upload the image buffer
-    const mediaId = await uploadMedia(imageBuffer);
+    const mediaId = await uploadTwitterMedia(imageUrl);
 
     // Post tweet with the media ID
     const result = await twitterClient.v2.tweet({
